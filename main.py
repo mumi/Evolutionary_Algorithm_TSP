@@ -59,7 +59,7 @@ def initialization(data: list[Node], pop_size: int) -> list[Chromosome]:
     return initial_population
 
 # Two points crossover
-def crossover_two(p_1: Chromosome, p_2: Chromosome) -> tuple[Chromosome, Chromosome]:  # two points crossover
+def crossover(p_1: Chromosome, p_2: Chromosome) -> tuple[Chromosome, Chromosome]:
     point_1, point_2 = random.sample(range(1, len(p_1.chromosome)-1), 2)
     begin = min(point_1, point_2)
     end = max(point_1, point_2)
@@ -81,27 +81,6 @@ def crossover_two(p_1: Chromosome, p_2: Chromosome) -> tuple[Chromosome, Chromos
 
     return child_1, child_2
 
-# Mixed two points crossover
-def crossover_mix(p_1: Chromosome, p_2: Chromosome) -> tuple[Chromosome, Chromosome]:
-    point_1, point_2 = random.sample(range(1, len(p_1.chromosome)-1), 2)
-    begin = min(point_1, point_2)
-    end = max(point_1, point_2)
-
-    child_1_1 = p_1.chromosome[:begin]
-    child_1_2 = p_1.chromosome[end:]
-    child_1 = child_1_1 + child_1_2
-    child_2 = p_2.chromosome[begin:end+1]
-
-    child_1_remain = [item for item in p_2.chromosome[1:-1] if item not in child_1]
-    child_2_remain = [item for item in p_1.chromosome[1:-1] if item not in child_2]
-
-    child_1 = child_1_1 + child_1_remain + child_1_2
-    child_2 += child_2_remain
-
-    child_2.insert(0, p_2.chromosome[0])
-    child_2.append(p_2.chromosome[0])
-
-    return child_1, child_2
 
 def mutation(chromosome: Chromosome) -> Chromosome:  # swap two nodes of the chromosome
     mutation_index_1, mutation_index_2 = random.sample(range(1, 19), 2)
@@ -126,7 +105,7 @@ def create_new_generation(previous_generation: list[Chromosome], mutation_rate: 
         while parent_1 == parent_2:
             parent_2 = random.choice(previous_best)
 
-        child_1, child_2 = crossover_mix(parent_1, parent_2)  # This will create node lists, we need Chromosome objects
+        child_1, child_2 = crossover(parent_1, parent_2)  # This will create node lists, we need Chromosome objects
         child_1 = Chromosome(child_1)
         child_2 = Chromosome(child_2)
 
