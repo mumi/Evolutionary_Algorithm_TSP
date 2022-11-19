@@ -1,4 +1,7 @@
-# parameters
-numbers_of_generations = 1000  # in other words, iteration size
-population_size = 100  # this shows how many solutions will be available in a generation
-mut_rate = 0.2  # mutation rate for solution diversity. It should be btw 0 and 1. 0.2 means --> 20%
+import tsplib95
+
+problem = tsplib95.load('TSPLIB/berlin52.tsp/berlin52.tsp')
+numbers_of_generations = 1000
+population_size = 100
+children_size = 100
+mut_rate = 0.2
