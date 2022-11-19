@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from parameters import population_size, children_size, problem, numbers_of_generations, mut_rate, best_known_solution
-
 class Node:  # Node = Location = Point
     def __init__(self, id, x, y):
         self.id = int(id)
@@ -21,14 +20,9 @@ def create_distance_matrix(node_list: list[Node]) -> list[list[float]]:
             matrix[node_list[i].id][node_list[j].id] = problem.get_weight(node_list[i].id, node_list[j].id)
     return matrix
 
-
 matrix = create_distance_matrix(dataset)  # calculate all distances among all points and create a matrix
 
 # Chromosome = Solution = Path
-# Chromosome will contain Node list. This will be used in crossover, mutation operations etc,
-# Chromosome representation --> chr_representation is only for displaying the route in a simple/clear way
-# Chromosome cost will be used to compare the chromosomes
-# We want to minimize the cost. So, lower cost is better!
 class Chromosome:
     def __init__(self, node_list: list[Node]):
         self.chromosome = node_list
@@ -45,7 +39,6 @@ class Chromosome:
 
         self.fitness_value = 1 / self.cost
 
-
 # create a random chromosome --> shuffle node list randomly
 def create_random_list(node_list: list[Node]) -> list[Chromosome]:
     start = node_list[0]  # start and end points should be same, so keep the first point before shuffling
@@ -56,7 +49,6 @@ def create_random_list(node_list: list[Node]) -> list[Chromosome]:
     temp.insert(0, start)  # add start point to the beginning of the chromosome
     temp.append(start)  # add start point to the end, because route should be ended where it started
     return temp
-
 
 def initialization(data: list[Node], pop_size: int) -> list[Chromosome]:
     initial_population = []
@@ -88,7 +80,6 @@ def crossover_two(p_1: Chromosome, p_2: Chromosome) -> tuple[Chromosome, Chromos
     child_2.append(p_2.chromosome[0])
 
     return child_1, child_2
-
 
 # Mixed two points crossover
 def crossover_mix(p_1: Chromosome, p_2: Chromosome) -> tuple[Chromosome, Chromosome]:
@@ -123,7 +114,6 @@ def get_best(generation: list[Chromosome]) -> Chromosome:
 # Find the best chromosomes of the generation based on the cost
 def find_best_population(generation: list[Chromosome]) -> list[Chromosome]:
     return sorted(generation, key=lambda x: x.fitness_value, reverse=True)[:population_size]
-
 
 def create_new_generation(previous_generation: list[Chromosome], mutation_rate: float) -> list[Chromosome]:
     previous_best = find_best_population(previous_generation)
