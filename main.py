@@ -4,13 +4,7 @@ import GeneticAlgorithm as GA
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-# parameters
-numbers_of_generations = 1000  # in other words, iteration size
-population_size = 100  # this shows how many solutions will be available in a generation
-mut_rate = 0.2  # mutation rate for solution diversity. It should be btw 0 and 1. 0.2 means --> 20%
-dataset = GA.dataset  # locations info in a list form. Each element of the list is a Node object, which as id, x, y info
-
+from parameters import numbers_of_generations, mut_rate, population_size
 
 # main function for genetic algorithm
 def genetic_algorithm(num_of_generations, pop_size, mutation_rate, data_list):
@@ -58,7 +52,7 @@ def draw_path(solution):
     plt.show()
 
 if __name__ == '__main__':
-    last_generation, y_axis = genetic_algorithm(numbers_of_generations, population_size, mut_rate, dataset)
+    last_generation, y_axis = genetic_algorithm(numbers_of_generations, population_size, mut_rate, GA.dataset)
     best_solution = GA.find_best(last_generation)
     draw_cost_generation(y_axis)
     #draw_path(best_solution)

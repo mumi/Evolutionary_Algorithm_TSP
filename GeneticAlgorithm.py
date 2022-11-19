@@ -2,6 +2,8 @@ import tsplib95
 import random
 from typing import Tuple, Any
 
+from parameters import population_size
+
 problem = tsplib95.load('TSPLIB/a280.tsp/a280.tsp')
 
 class Node:  # Node = Location = Point
@@ -41,18 +43,18 @@ class Chromosome:
         chr_representation = []
         for i in range(0, len(node_list)):
             chr_representation.append(self.chromosome[i].id)
-        self.chr_representation = chr_representation
+        chr_representation = chr_representation
 
         distance = 0
-        for j in range(1, len(self.chr_representation) - 1):  # get distances from the matrix
-            distance += matrix[self.chr_representation[j]-1][self.chr_representation[j + 1]-1]
+        for j in range(1, len(chr_representation) - 1):  # get distances from the matrix
+            distance += matrix[chr_representation[j]-1][chr_representation[j + 1]-1]
         self.cost = distance
 
         self.fitness_value = 1 / self.cost
 
 
 # create a random chromosome --> shuffle node list randomly
-def create_random_list(n_list) -> list:
+def create_random_list(n_list: list) -> list[Chromosome]:
     start = n_list[0]  # start and end points should be same, so keep the first point before shuffling
 
     temp = n_list[1:]
@@ -64,7 +66,7 @@ def create_random_list(n_list) -> list:
 
 
 # initialization
-def initialization(data, pop_size: int) -> list:
+def initialization(data: list, pop_size: int) -> list:
     initial_population = []
     for i in range(0, pop_size):  # create chromosomes as much as population size
         temp = create_random_list(data)
@@ -74,7 +76,7 @@ def initialization(data, pop_size: int) -> list:
 
 
 # selection of parent chromosomes to create child chromosomes
-def selection(population) -> Chromosome:  # tournament selection
+def selection(population: list[Chromosome]) -> Chromosome:  # tournament selection
     ticket_1, ticket_2, ticket_3, ticket_4 = random.sample(range(0, 99), 4)  # random 4 tickets
 
     # create candidate chromosomes based on ticket numbers
@@ -99,7 +101,7 @@ def selection(population) -> Chromosome:  # tournament selection
 
 
 # Three different crossover methods
-# 1 One point crossover
+# One point crossover
 def crossover(p_1, p_2) -> tuple[Chromosome, Chromosome]:
     one_point = random.randint(2, 14)
 
@@ -121,7 +123,7 @@ def crossover(p_1, p_2) -> tuple[Chromosome, Chromosome]:
     return child_1, child_2
 
 
-# 2 Two points crossover
+# Two points crossover
 def crossover_two(p_1, p_2) -> tuple[Chromosome, Chromosome]:  # two points crossover
     point_1, point_2 = random.sample(range(1, len(p_1.chromosome)-1), 2)
     begin = min(point_1, point_2)
@@ -145,7 +147,7 @@ def crossover_two(p_1, p_2) -> tuple[Chromosome, Chromosome]:  # two points cros
     return child_1, child_2
 
 
-# 3 Mixed two points crossover
+# Mixed two points crossover
 def crossover_mix(p_1, p_2) -> tuple[Chromosome, Chromosome]:
     point_1, point_2 = random.sample(range(1, len(p_1.chromosome)-1), 2)
     begin = min(point_1, point_2)
@@ -169,11 +171,10 @@ def crossover_mix(p_1, p_2) -> tuple[Chromosome, Chromosome]:
 
 
 # Mutation operation
-def mutation(chromosome) -> Chromosome:  # swap two nodes of the chromosome
+def mutation(chromosome: Chromosome) -> Chromosome:  # swap two nodes of the chromosome
     mutation_index_1, mutation_index_2 = random.sample(range(1, 19), 2)
     chromosome[mutation_index_1], chromosome[mutation_index_2] = chromosome[mutation_index_2], chromosome[mutation_index_1]
     return chromosome
-
 
 # Find the best chromosome of the generation based on the cost
 def find_best(generation) -> Chromosome:
@@ -183,18 +184,24 @@ def find_best(generation) -> Chromosome:
             best = generation[n]
     return best
 
+# Find the best chromosome of the generation based on the cost
+def find_best_population(generation: list[Chromosome]) -> list[Chromosome]:
+    return sorted(generation, key=lambda i: i.fitness_value, reverse=True)[:population_size]
 
 # Major function!
 # Use elitism, crossover, mutation operators to create a new generation based on a previous generation
-def create_new_generation(previous_generation, mutation_rate) -> list:
-    new_generation = [find_best(previous_generation)]  # This is for elitism. Keep the best of the previous generation.
+def create_new_generation(previous_generation: list[Chromosome], mutation_rate: float) -> list[Chromosome]:
+    previous_best = find_best_population(previous_generation)  # find the best 100 chromosomes of the previous generation
+    new_generation = []
 
     # Use two chromosomes and create two chromosomes. So, iteration size will be half of the population size!
     for a in range(0, int(len(previous_generation)/2)):
-        parent_1 = selection(previous_generation)
-        parent_2 = selection(previous_generation)
+        parent_1 = random.choice(previous_best)  # select a parent chromosome randomly
+        previous_best.remove(parent_1)  # remove the selected chromosome from the list
+        parent_2 = random.choice(previous_best)  # select a parent chromosome randomly
+        previous_best.remove(parent_2)  # remove the selected chromosome from the list
 
-        child_1, child_2 = crossover_mix(parent_1, parent_2)  # This will create node lists, we need Chromosome objects
+        child_1, child_2 = crossover_two(parent_1, parent_2)  # This will create node lists, we need Chromosome objects
         child_1 = Chromosome(child_1)
         child_2 = Chromosome(child_2)
 
