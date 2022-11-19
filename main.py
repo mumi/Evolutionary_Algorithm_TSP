@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from parameters import population_size, children_size, problem, numbers_of_generations, mut_rate, best_known_solution
+
 class Node:  # Node = Location = Point
     def __init__(self, id, x, y):
         self.id = int(id)
@@ -12,7 +13,7 @@ dataset = []
 for id, (x, y) in problem.node_coords.items():
     dataset.append(Node(id, x, y))
 
-# This function will be run once at the beginning of the program to create a distance matrix
+
 def create_distance_matrix(node_list: list[Node]) -> list[list[float]]:
     matrix = [[0 for _ in range(len(dataset))] for _ in range(len(dataset))]
     for i in range(0, len(matrix)-1):
@@ -20,7 +21,7 @@ def create_distance_matrix(node_list: list[Node]) -> list[list[float]]:
             matrix[node_list[i].id][node_list[j].id] = problem.get_weight(node_list[i].id, node_list[j].id)
     return matrix
 
-matrix = create_distance_matrix(dataset)  # calculate all distances among all points and create a matrix
+matrix = create_distance_matrix(dataset)
 
 # Chromosome = Solution = Path
 class Chromosome:
@@ -41,18 +42,18 @@ class Chromosome:
 
 # create a random chromosome --> shuffle node list randomly
 def create_random_list(node_list: list[Node]) -> list[Chromosome]:
-    start = node_list[0]  # start and end points should be same, so keep the first point before shuffling
+    start = node_list[0]  # start and end point are the same
 
     temp = node_list[1:]
     temp = random.sample(temp, len(temp))  # shuffle the node list
 
     temp.insert(0, start)  # add start point to the beginning of the chromosome
-    temp.append(start)  # add start point to the end, because route should be ended where it started
+    temp.append(start)  # add start point to the end
     return temp
 
 def initialization(data: list[Node], pop_size: int) -> list[Chromosome]:
     initial_population = []
-    for i in range(0, pop_size):  # create chromosomes as much as population size
+    for i in range(pop_size):
         temp = create_random_list(data)
         new_ch = Chromosome(temp)
         initial_population.append(new_ch)
@@ -81,9 +82,8 @@ def crossover(p_1: Chromosome, p_2: Chromosome) -> tuple[Chromosome, Chromosome]
 
     return child_1, child_2
 
-
-def mutation(chromosome: Chromosome) -> Chromosome:  # swap two nodes of the chromosome
-    mutation_index_1, mutation_index_2 = random.sample(range(1, 19), 2)
+def mutation(chromosome: list[Node]) -> Chromosome:  # swap two nodes of the chromosome
+    mutation_index_1, mutation_index_2 = random.sample(range(1, len(chromosome)-1), 2)
     chromosome[mutation_index_1], chromosome[mutation_index_2] = chromosome[mutation_index_2], chromosome[mutation_index_1]
     return chromosome
 
